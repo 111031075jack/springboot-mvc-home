@@ -320,7 +320,7 @@ public class ApiController {
 		return new ApiResponse<>(true, books, "查詢成功");
 	}
 	
-	@PostMapping(value = "/book/{id}", produces = "application/json;charset=utf-8")
+	@PostMapping(value = "/book", produces = "application/json;charset=utf-8")
 	public ApiResponse<Book> addBook(@RequestBody Book book){
 		books.add(book);
 		return new ApiResponse<>(true, book, "新增成功");
