@@ -1,6 +1,9 @@
 package com.example.demo.controller;
 
+import java.util.IntSummaryStatistics;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 //import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -174,29 +177,59 @@ public class ApiController {
 	 * 路徑: /ages?age=19&age=21&age=30
 	 * 請計算出平均年齡
 	 * */
-	
-	
-	
-	
-	
-	
-	
-	
+	@GetMapping(value = "/ages", produces = "application/json;charset=utf-8")
+	public ApiResponse<Map<String, Double>> getAvgOfAge(@RequestParam(name = "age", required = false) List<Integer> ages){
+		if(ages == null || ages.size() == 0) {
+			return new ApiResponse<>(false, null, "請輸入年齡資料");
+		}
+		IntSummaryStatistics stat = ages.stream().mapToInt(Integer::intValue).summaryStatistics();
+		double avg = stat.getAverage();
+		return new ApiResponse<>(true, Map.of("平均年齡", avg), "取得所有學生資料成功");
+	}
 	
 	/*
-	 * Lab 練習: 得到多筆 score 資料
+	 * Lab 練習1: 得到多筆 score 資料
 	 * 路徑: "/exam?score=80&score=100&score=50&score=70&score=30"
 	 * 網址: http://localhost:8080/api/exam?score=80&score=100&score=50&score=70&score=30
 	 * 請自行設計一個方法，此方法可以
 	 * 印出: 最高分=?、最低分=?、平均=?、總分=?、及格分數列出=?、不及格分數列出=?
 	 */
+	@GetMapping(value = "/exam", produces = "application/json;charset=utf-8")
+	public ApiResponse<Map<String, Object>> getAvgOfExam(@RequestParam(name = "score", required = false) List<Integer> scores){
+		if(scores == null || scores.size() == 0) {
+			return new ApiResponse<>(false, null, "請輸入成績資料");
+		}
+	IntSummaryStatistics stat = scores.stream().mapToInt(Integer::intValue).summaryStatistics();
+	double avg = stat.getAverage();
+	double max = stat.getMax();
+	double min = stat.getMin();
+	double sum = stat.getSum();
+	List<Integer> pass = scores.stream().filter(score -> score >= 60).collect(Collectors.toList());
+	List<Integer> notPass = scores.stream().filter(score -> score < 60).collect(Collectors.toList());
+	return new ApiResponse<>(true, Map.of("平均成績", avg, "最高分", max, "最低分", min, "總分", sum, "及格分數列出", pass, "不及格分數列出", notPass), "取得所有學生資料成功");
 	
-	
-	
-	
-	
-	
-	
+	}
+	/*
+	 * Lab 練習2: 得到多筆 score 資料
+	 * 路徑: "/quiz?score=80&score=70&score=80&score=30&score=90&score=100"
+	 * 網址: http://localhost:8080/api/quiz?point=70&point=80&point=30&point=90&point=100
+	 * 請自行設計一個方法，此方法可以
+	 * 印出: 最高分=?、最低分=?、平均=?、總分=?、及格分數列出=?、不及格分數列出=?
+	 */
+	@GetMapping(value = "/quiz", produces = "application/json;charset=utf-8")
+	public ApiResponse<Map<String, Object>> getAvgOfQuiz(@RequestParam(name = "point", required = false) List<Integer> points){
+		if(points == null || points.size() ==0) {
+			return new ApiResponse<>(false, null, "請輸入成績資料");
+		}
+		IntSummaryStatistics stat = points.stream().mapToInt(Integer::intValue).summaryStatistics();
+		double avg = stat.getAverage();
+		double max = stat.getMax();
+		double min = stat.getMin();
+		double sum = stat.getSum();
+		List<Integer> pass = points.stream().filter(score -> score >= 60).toList();
+		List<Integer> noPass = points.stream().filter(score -> score < 60).toList();
+		return new ApiResponse<Map<String,Object>>(true, Map.of("平均分數", avg, "總分", sum, "最高分", max, "最低分", min, "及格分數", pass, "不及格分數", noPass), "取得資料成功");
+		
 	
 	
 	
@@ -231,5 +264,5 @@ public class ApiController {
 	
 	
 	
-	
+	}
 }
