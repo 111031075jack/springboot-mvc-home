@@ -209,6 +209,33 @@ public class ApiController {
 	return new ApiResponse<>(true, Map.of("平均成績", avg, "最高分", max, "最低分", min, "總分", sum, "及格分數列出", pass, "不及格分數列出", notPass), "取得所有學生資料成功");
 	
 	}
+	
+	
+	/*	老師寫法
+	@GetMapping(value = "/exam", produces = "application/json;charset=utf-8")
+	public ApiResponse<Object> getExamInfo(@RequestParam(name = "score", required = false) List<Integer> scores) {
+		if(scores == null || scores.size() == 0) {
+			return new ApiResponse<>(false, null, "請輸入成績資料");
+		}
+		// 統計資料
+		IntSummaryStatistics stat = scores.stream().mapToInt(Integer::intValue).summaryStatistics();
+		// 利用 Collectors.partitioningBy
+		// key=true 及格 | key=false 不及格
+		Map<Boolean, List<Integer>> resultMap = scores.stream()
+				.collect(Collectors.partitioningBy(score -> score >= 60));
+		Object data = Map.of(
+				"最高分", stat.getMax(),
+				"最低分", stat.getMin(),
+				"平均", stat.getAverage(),
+				"總分", stat.getSum(),
+				"及格", resultMap.get(true),
+				"不及格", resultMap.get(false)
+		);
+		return new ApiResponse<>(true, data, "成績計算結果");
+	}
+	*/
+	
+	
 	/*
 	 * Lab 練習2: 得到多筆 score 資料
 	 * 路徑: "/quiz?score=80&score=70&score=80&score=30&score=90&score=100"
@@ -230,8 +257,9 @@ public class ApiController {
 		List<Integer> noPass = points.stream().filter(score -> score < 60).toList();
 		return new ApiResponse<Map<String,Object>>(true, Map.of("平均分數", avg, "總分", sum, "最高分", max, "最低分", min, "及格分數", pass, "不及格分數", noPass), "取得資料成功");
 		
+	}
 	
-	
+		
 	
 	
 	/**
