@@ -3,16 +3,22 @@ package com.example.demo.controller;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 //import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.SpringbootMvcApplication;
 import com.example.demo.model.BMI;
+import com.example.demo.model.Book;
 import com.example.demo.model.Student;
 import com.example.demo.model.Sugar;
 import com.example.demo.model.Water;
@@ -259,9 +265,6 @@ public class ApiController {
 		
 	}
 	
-		
-	
-	
 	/**
 	 * 
 	 * CRUD 現代設計風格(Rest):
@@ -286,11 +289,41 @@ public class ApiController {
 	 * */
 	
 	// 書庫
+	List<Book> books = new CopyOnWriteArrayList<Book>();
 	
-	
-	
-	
-	
-	
+	{
+		books.add(new Book(1, "機器貓小叮噹", 12.5, 20, false));
+		books.add(new Book(2, "老夫子", 10.5, 30, false));
+		books.add(new Book(3, "白雪公主", 8.5, 40, true));
+		books.add(new Book(4, "現代Java", 14.5, 90, true));
+		books.add(new Book(5, "好小子", 22.5, 15, false));
+		books.add(new Book(6, "洪興十三妹", 30.5, 22, true));
 	}
+	
+	@GetMapping(value = "/book/{id}", produces = "application/json;charset=utf-8")
+	public ApiResponse<Book> getBookById(@PathVariable Integer id){
+		// 根據 id 搜尋 book
+		Optional<Book> optBook = books.stream().filter(book -> book.getId().equals(id)).findFirst();
+		// 判斷是否有找到
+		if(optBook.isEmpty()) {
+			return new ApiResponse<Book>(false, null, "查無此書");
+		}
+		Book book = optBook.get(); // 取得此書
+		return new ApiResponse<Book>(true, book, "查詢成功");
+	}
+	
+	@GetMapping(value = "/books", produces = "application/json;charset=utf-8")
+	public ApiResponse<List<Book>> findAllBooks() {
+		if(books.isEmpty()) {
+			return new ApiResponse<>(false, null, "查無任何書籍");
+		}
+		return new ApiResponse<>(true, books, "查詢成功");
+	}
+	
+	@PostMapping(value = "/book/{id}", produces = "application/json;charset=utf-8")
+	public ApiResponse<Book> addBook(@RequestBody Book book){
+		books.add(book);
+		return new ApiResponse<>(true, book, "新增成功");
+	}
+	
 }
