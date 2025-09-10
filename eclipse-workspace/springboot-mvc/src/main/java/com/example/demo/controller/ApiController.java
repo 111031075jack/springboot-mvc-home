@@ -169,6 +169,65 @@ public class ApiController {
 		return new ApiResponse<>(true, map, "取得所有學生資料成功");
 	}
 	
+	/**
+	 * 同名多筆資料
+	 * 路徑: /ages?age=19&age=21&age=30
+	 * 請計算出平均年齡
+	 * */
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+	 * Lab 練習: 得到多筆 score 資料
+	 * 路徑: "/exam?score=80&score=100&score=50&score=70&score=30"
+	 * 網址: http://localhost:8080/api/exam?score=80&score=100&score=50&score=70&score=30
+	 * 請自行設計一個方法，此方法可以
+	 * 印出: 最高分=?、最低分=?、平均=?、總分=?、及格分數列出=?、不及格分數列出=?
+	 */
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 
+	 * CRUD 現代設計風格(Rest):
+	 * GET    /books   查詢所有書籍
+	 * GET    /book/1  查詢單筆書籍
+	 * POST   /book    新增書籍
+	 * PUT    /book/1  修改單筆書籍
+	 * DELETE /book/1  刪除單筆書籍
+	 * 
+	 * 路徑: /book/1 得到 id = 1 的書
+	 * 路徑: /book/3 得到 id = 3 的書
+	 * 網址: http://localhost:8080/api/book/1
+	 * 網址: http://localhost:8080/api/book/3
+	 * 
+	 * @PathVariable(name = "id") Integer id
+	 * 等價於
+	 * @PathVariable(value = "id") Integer id
+	 * 也等價於
+	 * @PathVariable("id") Integer id
+	 * ps: 就只是符合不同開發者的需要 !
+	 * 
+	 * */
+	
+	// 書庫
+	
+	
+	
 	
 	
 	
