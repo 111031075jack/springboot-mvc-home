@@ -9,12 +9,14 @@ import java.util.stream.Collectors;
 
 //import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.SpringbootMvcApplication;
 import com.example.demo.model.BMI;
@@ -29,10 +31,13 @@ import com.example.demo.response.ApiResponse;
 @RequestMapping("/api")
 public class ApiController {
 
+    private final GoldController goldController;
+
     private final SpringbootMvcApplication springbootMvcApplication;
 
-    ApiController(SpringbootMvcApplication springbootMvcApplication) {
+    ApiController(SpringbootMvcApplication springbootMvcApplication, GoldController goldController) {
         this.springbootMvcApplication = springbootMvcApplication;
+        this.goldController = goldController;
     }
 	
 	// 執行路徑: http:localhost:8080/api/hello
@@ -300,6 +305,7 @@ public class ApiController {
 		books.add(new Book(6, "洪興十三妹", 30.5, 22, true));
 	}
 	
+	// 單筆查詢
 	@GetMapping(value = "/book/{id}", produces = "application/json;charset=utf-8")
 	public ApiResponse<Book> getBookById(@PathVariable Integer id){
 		// 根據 id 搜尋 book
@@ -312,6 +318,7 @@ public class ApiController {
 		return new ApiResponse<Book>(true, book, "查詢成功");
 	}
 	
+	// 多筆查詢
 	@GetMapping(value = "/books", produces = "application/json;charset=utf-8")
 	public ApiResponse<List<Book>> findAllBooks() {
 		if(books.isEmpty()) {
@@ -320,10 +327,72 @@ public class ApiController {
 		return new ApiResponse<>(true, books, "查詢成功");
 	}
 	
+	// 新增書籍
 	@PostMapping(value = "/book", produces = "application/json;charset=utf-8")
 	public ApiResponse<Book> addBook(@RequestBody Book book){
 		books.add(book);
 		return new ApiResponse<>(true, book, "新增成功");
 	}
+	
+	// 修改書籍(完整)
+	@PutMapping(value = "/book/{id}", produces = "application/json;charset=utf-8")
+	public ApiResponse<Book> updateBook(@PathVariable Integer id, @RequestBody Book updateBook){
+		// 根據 id 搜尋 book
+		Optional<Book> optBook = books.stream().filter(book -> book.getId().equals(id)).findFirst();
+		// 判斷是否有找到
+		if(optBook.isEmpty()) {
+			return new ApiResponse<Book>(false, null, "查無此書");
+		}
+		// 取的原始 BOOK 資料
+		Book book = optBook.get();
+		// 逐筆欄位更新( id 不用更新)
+		book.setName(updateBook.getName());
+		book.setPrice(updateBook.getPrice());
+		book.setAmount(updateBook.getAmount());
+		book.setPub(updateBook.getPub());
+		return new ApiResponse<Book>(true, book, "修改完成");
+	}
+	
+	
+	// 修改書籍(部分, 技巧:使用Map 來修改資料, 逐欄判斷須修改項目)
+	@PatchMapping(value = "/book/{id}", produces = "application/json;charset=utf-8")
+	public ApiResponse<Book> patchBook(@PathVariable Integer id, @RequestBody Map<String, Object> updates){
+		// 根據 id 搜尋 book
+		Optional<Book> optBook = books.stream().filter(book -> book.getId().equals(id)).findFirst();
+		// 判斷是否有找到
+		if(optBook.isEmpty()) {
+			return new ApiResponse<Book>(false, null, "查無此書");
+		}
+		// 取的原始 BOOK 資料
+		Book book = optBook.get();
+		// 利用 foreach 更新欄位
+		updates.forEach((key, value) -> {
+			switch(key) {
+				case "name" :{
+					book.setName(value.toString());
+					break;
+				}
+				case "price" :{
+					book.setPrice(Double.valueOf(value.toString()));
+					break;
+				}
+				case "amount" :{
+					book.setAmount(Integer.valueOf(value.toString()));
+					break;
+				}
+				case "pub" :{
+					book.setPub(Boolean.valueOf(value.toString()));
+					break;
+				}
+			}
+		});
+		return new ApiResponse<Book>(true, book, "修改完成");
+	}
+	
+	
+	// 刪除書籍
+	
+	
+	
 	
 }
