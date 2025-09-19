@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 //import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -327,11 +328,38 @@ public class ApiController {
 		return new ApiResponse<>(true, books, "查詢成功");
 	}
 	
+	// 分頁查詢
+	@GetMapping(value = "/books/page", produces = "application/json;charset=utf-8")
+	public ApiResponse<List<Book>> findBooksByPage(@RequestParam(defaultValue = "1") int page,
+												   @RequestParam(defaultValue = "3") int size) {
+		if(page<1 || size < 1) {
+			return new ApiResponse<>(false, null, "page 與 size 必須 > 0");
+		}
+		
+		int start = (page - 1) * size;
+		return new ApiResponse<>(true, books, "查詢成功");
+		
+	}
+	
+	
 	// 新增書籍
 	@PostMapping(value = "/book", produces = "application/json;charset=utf-8")
 	public ApiResponse<Book> addBook(@RequestBody Book book){
 		books.add(book);
 		return new ApiResponse<>(true, book, "新增成功");
+	}
+	
+	// 批次新增書籍
+	@PostMapping(value = "/book/batch", produces = "application/json;charset=utf-8")
+	public ApiResponse<Object> addBatchBooks(@RequestBody List<Book> batchBooks){
+		if(batchBooks == null || batchBooks.isEmpty()) {
+			return new ApiResponse<>(false, null, "請至少要新增一本書");
+		}
+		// 批次新增
+		books.addAll(batchBooks);
+		
+		return new ApiResponse<>(true, "資料筆數: " + batchBooks.size(), "批次新增成功");
+		
 	}
 	
 	// 修改書籍(完整)
@@ -368,7 +396,7 @@ public class ApiController {
 		// 利用 foreach 更新欄位
 		updates.forEach((key, value) -> {
 			switch(key) {
-				case "name" :{
+				case "name" :{ 
 					book.setName(value.toString());
 					break;
 				}
@@ -391,8 +419,20 @@ public class ApiController {
 	
 	
 	// 刪除書籍
-	
-	
+	@DeleteMapping(value = "/book/{id}", produces = "application/json;charset=utf-8" )
+	public ApiResponse<Void> deleteBook(@PathVariable Integer id){
+		// 根據 id 搜尋 book
+		Optional<Book> optBook = books.stream().filter(book -> book.getId().equals(id)).findFirst();
+		// 判斷是否有找到
+		if(optBook.isEmpty()) {
+			return new ApiResponse<>(false, null, "查無此書");
+		}
+		// 取的原始 BOOK 資料
+		Book book = optBook.get();
+		// 刪除
+		books.remove(book);
+		return new ApiResponse<>(true, null, "刪除成功");
+	}
 	
 	
 }
