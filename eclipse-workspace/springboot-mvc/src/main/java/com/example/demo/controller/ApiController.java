@@ -304,6 +304,7 @@ public class ApiController {
 		books.add(new Book(4, "現代Java", 14.5, 90, true));
 		books.add(new Book(5, "好小子", 22.5, 15, false));
 		books.add(new Book(6, "洪興十三妹", 30.5, 22, true));
+		books.add(new Book(7, "楚留香", 15.5, 24, false));
 	}
 	
 	// 單筆查詢
@@ -332,12 +333,23 @@ public class ApiController {
 	@GetMapping(value = "/books/page", produces = "application/json;charset=utf-8")
 	public ApiResponse<List<Book>> findBooksByPage(@RequestParam(defaultValue = "1") int page,
 												   @RequestParam(defaultValue = "3") int size) {
-		if(page<1 || size < 1) {
+		if(page < 1 || size < 1) {
 			return new ApiResponse<>(false, null, "page 與 size 必須 > 0");
 		}
 		
 		int start = (page - 1) * size;
-		return new ApiResponse<>(true, books, "查詢成功");
+		int end = Math.min(start + size, books.size());
+		
+		if(start > books.size()) {
+			return new ApiResponse<>(false, null, "page 或 size 輸入過大");
+		}
+		
+		List<Book> subBooks = books.subList(start, end); // 該頁的書籍集合
+										//     0    3
+		if(subBooks.size() == 0) {
+			return new ApiResponse<>(false, null, "此頁無資料");
+		}
+		return new ApiResponse<>(true, subBooks,"第" + page + "頁查詢成功");
 		
 	}
 	
